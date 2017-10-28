@@ -43,9 +43,10 @@ class linearRegressionPredict(APIView):
     
     def post(self, request, *args, **kw):
         f = pd.DataFrame.from_dict(request.data, orient='index')
+        print(f)
         data = f.copy().T
         data["Experience (years)"] = int(data["Experience (years)"])
-        skills = data.iloc[0].Qualifications.split(", ")
+        skills = data.iloc[0].Qualifications
         LEN = len(skills)
 
         for skill in skills:
@@ -128,12 +129,13 @@ class linearRegressionPredict(APIView):
         standardized_X_new = preprocessing.scale(normalized_X_new)
         
         predictions_new = logmodel.predict(standardized_X_new)
-        idx = []
+        idx = ""
         # print(predictions_new[0])
         for i in range(len(predictions_new)):
             if predictions_new[i] == 1:
-                idx.append(i)
+                idx += str(i) + " "
         print(idx)
+        idx = str(idx)
         # print(predictions_new)
         predictions_new = logmodel.predict(standardized_X)
         print(classification_report(y_train,predictions_new))
@@ -145,6 +147,6 @@ class linearRegressionPredict(APIView):
         print(metrics.accuracy_score(y_test, predictions_new))
   
 
-        result = {"status" : 200, "burin" : "post", "prediction" : "OK"}
+        result = {"status" : 200, "burin" : "post", "prediction" : idx}
         response = Response(result, status.HTTP_200_OK)
         return response
