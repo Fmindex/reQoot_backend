@@ -128,15 +128,15 @@ class linearRegressionPredict(APIView):
         normalized_X_new = preprocessing.normalize(data2)
         standardized_X_new = preprocessing.scale(normalized_X_new)
         
-        predictions_new = logmodel.predict(standardized_X_new)
-        out = pd.read_csv("Developers Share copy.csv")
+        predictions_new = logmodel.predict_proba(standardized_X_new)
+        out = pd.read_csv("Developers Share copy.csv", encoding="ISO 8859-13")
         summary = ""
         skill_out = ""
         # print(predictions_new[0])
         for i in range(len(predictions_new)):
-            if predictions_new[i] == 1:
-                summary += out.loc[i].Summary + " | "
-                skill_out += out.loc[i].Skills + " | "
+            if predictions_new[i][1] >= 0.5:
+                summary += str(out.loc[i].Summary) + " | "
+                skill_out += str(out.loc[i].Skills) + " | "
         # print(predictions_new)
         predictions_new = logmodel.predict(standardized_X)
         print(classification_report(y_train,predictions_new))
@@ -148,6 +148,6 @@ class linearRegressionPredict(APIView):
         print(metrics.accuracy_score(y_test, predictions_new))
         
 
-        result = {"status" : 200, "burin" : "post", "prediction_summary" : summary, "prediction_skill", skill_out}
+        result = {"status" : 200, "burin" : "post", "prediction_summary" : summary, "prediction_skill": skill_out}
         response = Response(result, status.HTTP_200_OK)
         return response
